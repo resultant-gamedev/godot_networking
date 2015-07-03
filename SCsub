@@ -1,0 +1,8 @@
+import os
+Import('env')
+
+env.add_source_files(env.modules_sources, [
+    os.path.join('http_helper', 'http_helper.cpp'),
+    os.path.join('http_helper', 'http_response.cpp'),
+    'register_types.cpp'
+])
