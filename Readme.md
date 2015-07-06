@@ -32,7 +32,7 @@ A simple GET request
 
 ```gdscript
 var http_helper = HTTPHelper.new()
-http_helper.get("www.godotengine.org/")
+http_helper.get("www.godotengine.org")
 yield(http_helper, "after_response")
 print(http_helper.response.body)
 ```

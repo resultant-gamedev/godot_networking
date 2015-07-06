@@ -4,26 +4,26 @@
 #include "reference.h"
 #include "io/http_client.h"
 #include "http_response.h"
-#include "thread.h"
+#include "scene/main/node.h"
 
-class HTTPHelper : public HTTPClient {
-    OBJ_TYPE(HTTPHelper, Reference);
+// Function that will run in the thread created for the request.
+
+class HTTPHelper : public Node {
+    OBJ_TYPE(HTTPHelper, Node);
 
 private:
-
-    // Cache the latest response in case the user uses a yield to wait for
-    // the response.
-    Ref<HTTPResponse> response;
-
     // Host the server is running. Don't need to strip "http://" or
     // "https://" prefix becuase HTTPClient already deals with it.
     String host;
 
-    // Port the HTTP server is listening to (default = 80)
-    int port = 80;
+    // Port the HTTP server is listening to (default = 80).
+    int port;
 
-    // Path of the request including the querystring (default = "/")
-    String path = "/";
+    // Path of the request including the querystring (default = "/").
+    String path;
+
+    // HTTPClient used to perform the request.
+    HTTPClient http_client;
 
     // Establishes the TCP connection to the host.
     // Called by _perform_request
@@ -32,31 +32,23 @@ private:
     // Makes the request to the
     void _perform_request(HTTPClient::Method method, const String& raw_data);
 
-    // Called by HTTPCache to prepare the connection to be used in a different
-    // request. This method should:
-    // * unref the response variable
-    void _reset();
+    // Splits the specified url into host, port and path, and assign the values
+    // to the private variables "host", "port" and "path".
+    void _split_and_assign_url(const String& url);
 
 protected:
     static void _bind_methods();
 
 public:
+    // Returns true if in the middle of a request, false if not.
+    bool is_requesting();
 
-    Ref<HTTPResponse> get_response() const;
+    // Cache the latest response in case the user uses a yield to wait for
+    // the response.
+    Ref<HTTPResponse> response;
 
     // Performs a GET request to the specified path
-    Error get(const String& path);
-
-    // Performs a POST request to the specified path with the data encoded
-    // as JSON
-    Error post(const String& path, Variant data);
-
-    // Performs a PUT request to the specified path with the data encoded
-    // as JSON
-    Error put(const String& path, Variant data);
-
-    // Performs a DELETE request to the specified path
-    Error delete(const String& path);
+    Error GET(const String& path);
 
     explicit HTTPHelper();
 };
